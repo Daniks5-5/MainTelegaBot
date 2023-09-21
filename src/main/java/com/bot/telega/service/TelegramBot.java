@@ -34,6 +34,14 @@ public class TelegramBot extends TelegramLongPollingBot {
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
                     }
+                case "/планы" :
+                    try {
+                        sendNextMessage(chatId, update.getMessage().getChat().getFirstName());
+                        break;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+
                 default:
                     try {
                         sendMessage(chatId, "Сорри брат, пока еще не поддерживается такой функционал");
@@ -48,7 +56,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         }
     private void startCommandReceived(long chatId, String name) throws TelegramApiException {
-        String answer = "Привет, "+name+", рад тебя видеть здесь :)";
+        String answer = "Привет, "+name+", рад тебя видеть здесь :) Если напишешь /планы, то узнаешь что я буду делать потом";
         sendMessage(chatId, answer);
 
     }
@@ -64,6 +72,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
 
 
+    }
+    private void sendNextMessage(long chatId, String name) throws TelegramApiException {
+        String answer = name + ", смотри, я скоро научусь новым фишкам. Буду стараться освоить поиск определенной информации, также добавлю меню, чтобы было" +
+                " проще ко мне обращаться";
+        sendMessage(chatId, answer);
     }
 
 
