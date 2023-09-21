@@ -28,12 +28,17 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             switch (messageText){
                 case "/start":
+                case "старт":
+                case "Старт":
+                case "Начать":
+                case "начать":
                     try {
                         startCommandReceived(chatId, update.getMessage(). getChat(). getFirstName()); //getFirstName отвечает за получения имени человека
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
                     }
+
                 case "/планы" :
                     try {
                         sendNextMessage(chatId, update.getMessage().getChat().getFirstName());
