@@ -1,6 +1,7 @@
 package com.bot.telega.config;
 
 import com.bot.telega.service.TelegramBot;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -10,6 +11,7 @@ import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+@Slf4j
 @Component
 public class BotInitializer { //класс для инициализации бота
 
@@ -23,6 +25,7 @@ public class BotInitializer { //класс для инициализации б�
             telegramBotsApi.registerBot(bot);
 
         } catch (TelegramApiException e) { // здесь будут логи
+            log.error("Возникла ошибка: "+e.getMessage());
 
 
 

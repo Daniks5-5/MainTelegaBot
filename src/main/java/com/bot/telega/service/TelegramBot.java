@@ -2,18 +2,28 @@ package com.bot.telega.service;
 
 
 import com.bot.telega.config.BotConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
+@Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
     final BotConfig config;
 
     public TelegramBot(BotConfig config) {
         this.config = config;
+        List <BotCommand> listofCommands = new ArrayList<>(); //list не абстрактный, а содержит команды бота
+        listofCommands.add(new BotCommand("/start","начать взаимодействовать с ботом"));
+        listofCommands.add(new BotCommand("/планы","узнать о будущих обновах"));
+
 
 
     }
@@ -28,10 +38,10 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             switch (messageText){
                 case "/start":
-                case "старт":
-                case "Старт":
-                case "Начать":
-                case "начать":
+                case "/старт":
+                case "/Старт":
+                case "/Начать":
+                case "/начать":
                     try {
                         startCommandReceived(chatId, update.getMessage(). getChat(). getFirstName()); //getFirstName отвечает за получения имени человека
                         break;
@@ -63,6 +73,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void startCommandReceived(long chatId, String name) throws TelegramApiException {
         String answer = "Привет, "+name+", рад тебя видеть здесь :) Если напишешь /планы, то узнаешь что я буду делать потом";
         sendMessage(chatId, answer);
+        log.info("Ответ пользователю: "+name);
 
     }
     private void sendMessage(long chatId, String textToSend) throws TelegramApiException {
@@ -73,7 +84,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try{
             execute(message);
         } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+            log.error("Возникла ошибка "+e.getMessage());
         }
 
 
@@ -85,6 +96,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
 
+
+
+
     @Override
     public String getBotUsername() {
         return config.getBotName();
@@ -94,4 +108,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     public String getBotToken () {
         return config.getToken();
 }
-}
+
+    }
+
