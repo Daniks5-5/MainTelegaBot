@@ -4,9 +4,16 @@ package com.bot.telega.service;
 import com.bot.telega.config.BotConfig;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
@@ -14,6 +21,16 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public TelegramBot(BotConfig config) {
         this.config = config;
+        List<BotCommand> listofCommands = new ArrayList<>(); //list не абстрактный, а содержит команды бота
+        listofCommands.add(new BotCommand("/start","начать взаимодействовать с ботом"));
+        listofCommands.add(new BotCommand("/plans","узнать о будущих обновах"));
+        listofCommands.add(new BotCommand("/help","как пользоваться ботом"));
+        try{
+            this.execute(new SetMyCommands(listofCommands, new BotCommandScopeDefault(), null));
+        }
+        catch (TelegramApiException e){
+
+        }
 
 
     }
@@ -39,13 +56,21 @@ public class TelegramBot extends TelegramLongPollingBot {
                         throw new RuntimeException(e);
                     }
 
-                case "/планы" :
+                case "/plans" :
                     try {
                         sendNextMessage(chatId, update.getMessage().getChat().getFirstName());
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
                     }
+                case "/help" :
+                    try {
+                        sendHelpMessage(chatId, update.getMessage().getChat());
+                        break;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+
 
                 default:
                     try {
@@ -77,11 +102,17 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
 
 
+
     }
     private void sendNextMessage(long chatId, String name) throws TelegramApiException {
         String answer = name + ", смотри, я скоро научусь новым фишкам. Буду стараться освоить поиск определенной информации, также добавлю меню, чтобы было" +
                 " проще ко мне обращаться";
         sendMessage(chatId, answer);
+    }
+    private void sendHelpMessage(long chatId, Chat chat) throws TelegramApiException {
+        String answer = "Смотри, я предназначен чтобы тебя приветсвовать, а потом буду отправлять тебе фото с заменами на пары";
+        sendMessage(chatId, answer);
+
     }
 
 
