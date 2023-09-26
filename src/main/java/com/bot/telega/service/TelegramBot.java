@@ -3,8 +3,7 @@ package com.bot.telega.service;
 import java.io.IOException;
 
 import com.bot.telega.config.BotConfig;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -21,16 +20,20 @@ import java.util.List;
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
     final BotConfig config;
-
+    static final String HELP_MESSAGE = "этот бот создан для демонстрации возможностей Spring \n\n"+
+            "могу выполнять команды из главного меню\n\n"+
+            "Введите /start, чтобы увидеть приветственное сообщение\n\n" +
+            "Введите /mydata, чтобы просмотреть данные, хранящиеся о вас\n\n" +
+            "Введите /help, чтобы снова увидеть это сообщение";
     public TelegramBot(BotConfig config) {
         this.config = config;
         List<BotCommand> listofCommands = new ArrayList<>(); //list не абстрактный, а содержит команды бота
         listofCommands.add(new BotCommand("/start@Main_EstimaBot","начать взаимодействовать с ботом"));
-        listofCommands.add(new BotCommand("/mydata", "информация о взаимодействии с ботом"));
-        listofCommands.add(new BotCommand("/delete", "удалить данные"));
+        listofCommands.add(new BotCommand("/mydata@Main_EstimaBo", "информация о взаимодействии с ботом"));
+        listofCommands.add(new BotCommand("/delete@Main_EstimaBo", "удалить данные"));
         listofCommands.add(new BotCommand("/plans@Main_EstimaBot","узнать о будущих обновах"));
         listofCommands.add(new BotCommand("/help@Main_EstimaBot","как пользоваться ботом"));
-        listofCommands.add(new BotCommand("/setting", "изменить настройки"));
+        listofCommands.add(new BotCommand("/setting@Main_EstimaBo", "изменить настройки"));
         try{ //доносит информацию из списка в меню
             this.execute(new SetMyCommands(listofCommands, new BotCommandScopeDefault(), null));
         }
@@ -50,7 +53,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
             switch (messageText){
-                case "/start@Main_EstimaBot":
+                case "/start":
                 case "старт":
                 case "Старт":
                 case "Начать":
@@ -62,20 +65,22 @@ public class TelegramBot extends TelegramLongPollingBot {
                         throw new RuntimeException(e);
                     }
 
-                case "/plans@Main_EstimaBot" :
+                case "/plans" :
                     try {
                         sendNextMessage(chatId, update.getMessage().getChat().getFirstName());
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
                     }
-                case "/help@Main_EstimaBot" :
+                case "/help" :
                     try {
-                        sendHelpMessage(chatId, update.getMessage().getChat());
-                        break;
+                        sendMessage(chatId, HELP_MESSAGE);
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
                     }
+                    break;
+
+
                 case "/замены" :
 
 
@@ -122,13 +127,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         sendMessage(chatId, answer);
 
     }
-    private static String getPage(long chatId, Chat chat) throws IOException { // сам парсер старницы
-        Document doc = Jsoup.connect("http://lmk-lipetsk.ru").get();
-        String href = doc.text();
-        return href;
 
 
-    }
+
 
 
 
