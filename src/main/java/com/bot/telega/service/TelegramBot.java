@@ -1,7 +1,10 @@
 package com.bot.telega.service;
 
+import java.io.IOException;
 
 import com.bot.telega.config.BotConfig;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -22,10 +25,13 @@ public class TelegramBot extends TelegramLongPollingBot {
     public TelegramBot(BotConfig config) {
         this.config = config;
         List<BotCommand> listofCommands = new ArrayList<>(); //list не абстрактный, а содержит команды бота
-        listofCommands.add(new BotCommand("/start","начать взаимодействовать с ботом"));
-        listofCommands.add(new BotCommand("/plans","узнать о будущих обновах"));
-        listofCommands.add(new BotCommand("/help","как пользоваться ботом"));
-        try{
+        listofCommands.add(new BotCommand("/start@Main_EstimaBot","начать взаимодействовать с ботом"));
+        listofCommands.add(new BotCommand("/mydata", "информация о взаимодействии с ботом"));
+        listofCommands.add(new BotCommand("/delete", "удалить данные"));
+        listofCommands.add(new BotCommand("/plans@Main_EstimaBot","узнать о будущих обновах"));
+        listofCommands.add(new BotCommand("/help@Main_EstimaBot","как пользоваться ботом"));
+        listofCommands.add(new BotCommand("/setting", "изменить настройки"));
+        try{ //доносит информацию из списка в меню
             this.execute(new SetMyCommands(listofCommands, new BotCommandScopeDefault(), null));
         }
         catch (TelegramApiException e){
@@ -44,7 +50,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
             switch (messageText){
-                case "/start":
+                case "/start@Main_EstimaBot":
                 case "старт":
                 case "Старт":
                 case "Начать":
@@ -56,20 +62,22 @@ public class TelegramBot extends TelegramLongPollingBot {
                         throw new RuntimeException(e);
                     }
 
-                case "/plans" :
+                case "/plans@Main_EstimaBot" :
                     try {
                         sendNextMessage(chatId, update.getMessage().getChat().getFirstName());
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
                     }
-                case "/help" :
+                case "/help@Main_EstimaBot" :
                     try {
                         sendHelpMessage(chatId, update.getMessage().getChat());
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
                     }
+                case "/замены" :
+
 
 
                 default:
@@ -86,7 +94,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     }
     private void startCommandReceived(long chatId, String name) throws TelegramApiException {
-        String answer = "Привет, "+name+", рад тебя видеть здесь :) Если напишешь /планы, то узнаешь что я буду делать потом";
+        String answer = "Привет, "+name+", рад тебя видеть здесь :) Если выберешь /plans, то узнаешь что я буду делать потом";
         sendMessage(chatId, answer);
 
     }
@@ -110,10 +118,20 @@ public class TelegramBot extends TelegramLongPollingBot {
         sendMessage(chatId, answer);
     }
     private void sendHelpMessage(long chatId, Chat chat) throws TelegramApiException {
-        String answer = "Смотри, я предназначен чтобы тебя приветсвовать, а потом буду отправлять тебе фото с заменами на пары";
+        String answer = "Смотри, я предназначен чтобы тебя приветствовать, а потом буду отправлять тебе фото с заменами на пары";
         sendMessage(chatId, answer);
 
     }
+    private static String getPage(long chatId, Chat chat) throws IOException { // сам парсер старницы
+        Document doc = Jsoup.connect("http://lmk-lipetsk.ru").get();
+        String href = doc.text();
+        return href;
+
+
+    }
+
+
+
 
 
     @Override
