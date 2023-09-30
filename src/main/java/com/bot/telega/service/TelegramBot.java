@@ -1,10 +1,15 @@
 package com.bot.telega.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.bot.telega.config.BotConfig;
 
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,34 +19,27 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
     final BotConfig config;
     static final String HELP_MESSAGE = "этот бот создан для демонстрации возможностей Spring \n\n"+
             "могу выполнять команды из главного меню\n\n"+
             "Введите /start, чтобы увидеть приветственное сообщение\n\n" +
-            "Введите /mydata, чтобы просмотреть данные, хранящиеся о вас\n\n" +
             "Введите /help, чтобы снова увидеть это сообщение";
-    public TelegramBot(BotConfig config) {
+    public TelegramBot(BotConfig config){
         this.config = config;
-        List<BotCommand> listofCommands = new ArrayList<>(); //list не абстрактный, а содержит команды бота
-        listofCommands.add(new BotCommand("/start@Main_EstimaBot","начать взаимодействовать с ботом"));
-        listofCommands.add(new BotCommand("/mydata@Main_EstimaBo", "информация о взаимодействии с ботом"));
-        listofCommands.add(new BotCommand("/delete@Main_EstimaBo", "удалить данные"));
-        listofCommands.add(new BotCommand("/plans@Main_EstimaBot","узнать о будущих обновах"));
-        listofCommands.add(new BotCommand("/help@Main_EstimaBot","как пользоваться ботом"));
-        listofCommands.add(new BotCommand("/setting@Main_EstimaBo", "изменить настройки"));
-        try{ //доносит информацию из списка в меню
-            this.execute(new SetMyCommands(listofCommands, new BotCommandScopeDefault(), null));
+        List<BotCommand> listofCommands = new ArrayList<>();
+        listofCommands.add(new BotCommand("/start", "начать работать"));
+        listofCommands.add(new BotCommand("/plans", "узнать о планах"));
+        listofCommands.add(new BotCommand("/help", "функции бота"));
+        listofCommands.add(new BotCommand("/data", "все взаимодействия "));
+        listofCommands.add(new BotCommand("/deldata", "удалить взаимодействия"));
+        try{
+            this.execute(new SetMyCommands(listofCommands, new BotCommandScopeDefault(), "null"));
         }
         catch (TelegramApiException e){
 
         }
-
-
     }
 
     @Override
@@ -54,10 +52,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             switch (messageText){
                 case "/start":
-                case "старт":
-                case "Старт":
-                case "Начать":
-                case "начать":
                     try {
                         startCommandReceived(chatId, update.getMessage(). getChat(). getFirstName()); //getFirstName отвечает за получения имени человека
                         break;
@@ -79,9 +73,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         throw new RuntimeException(e);
                     }
                     break;
-
-
-                case "/замены" :
+                case "/mydata" :
 
 
 
@@ -122,11 +114,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                 " проще ко мне обращаться";
         sendMessage(chatId, answer);
     }
-    private void sendHelpMessage(long chatId, Chat chat) throws TelegramApiException {
-        String answer = "Смотри, я предназначен чтобы тебя приветствовать, а потом буду отправлять тебе фото с заменами на пары";
-        sendMessage(chatId, answer);
 
-    }
+
+
+
 
 
 
